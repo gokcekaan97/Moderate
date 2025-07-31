@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
   <head>
+    <meta charset="UTF-8" />
+    <title>Yönlendiriliyor...</title>
     <script>
-      // Fragment'ı al (#code=...&state=...)
-      const fragment = window.location.hash.substring(1);
+      // Kick genellikle #fragment ile gönderir: #code=xyz123&state=abc
+      const fragment = window.location.hash.substring(1); // "code=...&state=..."
 
-      // Eğer fragment boşsa → hiçbir parametre taşınmaz!
       if (!fragment) {
-        alert("⚠️ Fragment boş, Kick auth başarısız olabilir.");
+        document.body.innerText = "⚠️ Kick'den veri alınamadı. Lütfen tekrar deneyin.";
+      } else {
+        const redirectUrl = `moderatekick://callback?${fragment}`;
+        window.location.replace(redirectUrl); // iOS uygulamasına yönlendir
       }
-
-      // Yeni URL: moderatekick://callback?code=xyz&state=abc
-      const redirectUrl = `moderatekick://callback?${fragment}`;
-      window.location.replace(redirectUrl);
     </script>
   </head>
   <body>
-    <p>Yönlendiriliyorsunuz...</p>
+    <p>Yönlendiriliyorsunuz, lütfen bekleyin...</p>
   </body>
 </html>
