@@ -4,17 +4,12 @@
     <meta charset="UTF-8">
     <title>Redirecting...</title>
     <script>
-      // URL fragment'ını al (#access_token=...)
       const fragment = window.location.hash.substring(1);
-
-      // Custom URI scheme'ine query olarak ekle
       const redirectUrl = `ModerateKick://callback?${fragment}`;
-
-      // Uygulamaya yönlendir
       window.location.replace(redirectUrl);
     </script>
   </head>
   <body>
-    <p>Yönlendiriliyorsunuz, lütfen bekleyin...</p>
+    <p>Yönlendiriliyorsunuz...</p>
   </body>
 </html>
