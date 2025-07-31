@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
-    <title>Redirecting...</title>
     <script>
+      // Fragment'ı al (#code=...&state=...)
       const fragment = window.location.hash.substring(1);
+
+      // Eğer fragment boşsa → hiçbir parametre taşınmaz!
+      if (!fragment) {
+        alert("⚠️ Fragment boş, Kick auth başarısız olabilir.");
+      }
+
+      // Yeni URL: moderatekick://callback?code=xyz&state=abc
       const redirectUrl = `moderatekick://callback?${fragment}`;
       window.location.replace(redirectUrl);
     </script>
