@@ -1,21 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Redirecting...</title>
     <script>
-      // Fragment (#access_token=...) varsa al
-      const fragment = window.location.hash.substring(1); // access_token=...
+      window.onload = () => {
+        const fragment = window.location.hash.substring(1); // removes '#'
+        
+        if (!fragment) {
+          document.body.innerHTML = "<h2>⚠️ Kick yönlendirme başarısız oldu. Kod alınamadı.</h2>";
+          return;
+        }
 
-      if (fragment) {
         const redirectUrl = `moderatekick://callback?${fragment}`;
         window.location.replace(redirectUrl);
-      } else {
-        document.body.innerText = "⚠️ Geri dönen veride token bulunamadı.";
-      }
+      };
     </script>
   </head>
   <body>
-    <p>Yönlendiriliyorsunuz, lütfen bekleyin...</p>
+    <p>Kick'ten gelen yetkilendirme verileri işleniyor, lütfen bekleyin...</p>
   </body>
 </html>
