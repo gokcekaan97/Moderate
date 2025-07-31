@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <title>Yönlendiriliyor...</title>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
     <script>
-      // Kick genellikle #fragment ile gönderir: #code=xyz123&state=abc
-      const fragment = window.location.hash.substring(1); // "code=...&state=..."
+      // Fragment (#access_token=...) varsa al
+      const fragment = window.location.hash.substring(1); // access_token=...
 
-      if (!fragment) {
-        document.body.innerText = "⚠️ Kick'den veri alınamadı. Lütfen tekrar deneyin.";
-      } else {
+      if (fragment) {
         const redirectUrl = `moderatekick://callback?${fragment}`;
-        window.location.replace(redirectUrl); // iOS uygulamasına yönlendir
+        window.location.replace(redirectUrl);
+      } else {
+        document.body.innerText = "⚠️ Geri dönen veride token bulunamadı.";
       }
     </script>
   </head>
