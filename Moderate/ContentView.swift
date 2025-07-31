@@ -8,17 +8,30 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var authService: AuthService
+    @EnvironmentObject var channelService: ChannelService
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationView {
+            if authService.isAuthenticated {
+                if let selectedChannel = channelService.selectedChannel {
+                    MainTabView()
+                } else {
+                    ChannelSelectionView()
+                }
+            } else {
+                LoginView()
+            }
         }
-        .padding()
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(AuthService())
+        .environmentObject(ChannelService(authService: AuthService()))
+        .environmentObject(ChatService(authService: AuthService()))
+        .environmentObject(ModerationService(authService: AuthService()))
+        .preferredColorScheme(.dark)
 }
