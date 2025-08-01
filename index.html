@@ -8,9 +8,14 @@
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
 
-  if (code) {
-    // örneğin bu kodu app://callback?code=... formatında deep link ile app'e gönderebilirsin
-    window.location.href = `moderatekick://callback?code=${code}&state=${state}`;
+  if (code && state) {
+    // Uygulamanız bu URL'yi dinliyor olmalı (örneğin app içindeki WebView'den postMessage?)
+    // Ya da burada bir "Token al" butonu ile kullanıcıyı yönlendirin
+
+    // Geçici olarak terminale yapıştırabilmeniz için gösterebilirsiniz:
+    document.body.innerText = `Auth Code: ${code}\nState: ${state}`;
+  } else {
+    document.body.innerText = "No code found.";
   }
 </script>
   </head>
