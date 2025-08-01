@@ -43,25 +43,22 @@ class AuthService: NSObject, ObservableObject, BaseService {
     }
     
     private func generatePKCEValues() {
-        // Generate code verifier (43-128 characters)
-        codeVerifier = generateRandomString(length: 128)
+        // Generate code verifier (43-128 characters, RFC 7636)
+        codeVerifier = generateRandomString(length: 64)
         // Generate code challenge (SHA256 hash of code verifier, base64url encoded)
         let data = Data(codeVerifier.utf8)
         let hash = SHA256.hash(data: data)
         codeChallenge = Data(hash).base64URLEncoded()
-        // 🧪 Debug PKCE:
-        let expectedChallenge = Data(hash).base64URLEncoded()
-        print("🧪 Debug PKCE:")
-        print("   🔑 codeVerifier: \(codeVerifier)")
-        print("   🧮 SHA256 hash: \(hash.map { String(format: "%02hhx", $0) }.joined())")
-        print("   🧪 Expected Challenge: \(expectedChallenge)")
-        print("   📌 Stored Challenge: \(codeChallenge)")
         // Generate state parameter
         state = generateRandomString(length: 32)
+        
+        print("🧪 PKCE Generated:")
+        print("   🔑 Code Verifier Length: \(codeVerifier.count)")
+        print("   🧮 Code Challenge: \(codeChallenge)")
     }
     
     private func generateRandomString(length: Int) -> String {
-        let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
+        let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
         return String((0..<length).map { _ in characters.randomElement()! })
     }
     
@@ -243,16 +240,14 @@ class AuthService: NSObject, ObservableObject, BaseService {
         let bodyParams = [
             "grant_type": "authorization_code",
             "client_id": clientId,
-            "code": code,
             "redirect_uri": redirectURI,
+            "code": code,
             "code_verifier": codeVerifier
         ]
 
-        let bodyString = bodyParams.compactMap { key, value in
-            guard let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                  let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
-                return nil
-            }
+        let bodyString = bodyParams.map { key, value in
+            let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? key
+            let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
             return "\(encodedKey)=\(encodedValue)"
         }.joined(separator: "&")
 
