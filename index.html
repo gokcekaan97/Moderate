@@ -5,19 +5,21 @@
     <title>Redirecting...</title>
     <script>
       window.onload = () => {
-        const fragment = window.location.hash.substring(1); // removes '#'
-        
-        if (!fragment) {
-          document.body.innerHTML = "<h2>⚠️ Kick yönlendirme başarısız oldu. Kod alınamadı.</h2>";
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+        const state = params.get("state");
+
+        if (!code || !state) {
+          document.body.innerHTML = "<h2>⚠️ Kick yönlendirme başarısız oldu. Kod veya state alınamadı.</h2>";
           return;
         }
 
-        const redirectUrl = `moderatekick://callback?${fragment}`;
+        const redirectUrl = `moderatekick://callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
         window.location.replace(redirectUrl);
       };
     </script>
   </head>
   <body>
-    <p>Kick'ten gelen yetkilendirme verileri işleniyor, lütfen bekleyin...</p>
+    <p>Kick'ten gelen yetkilendirme kodu alındı. Uygulama açılıyor...</p>
   </body>
 </html>
