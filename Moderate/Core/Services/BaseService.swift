@@ -16,6 +16,36 @@ extension BaseService {
     var session: URLSession { URLSession.shared }
     var baseURL: String { "https://kick.com" }
     
+    func createRequest(
+        endpoint: String,
+        method: HTTPMethod = .GET,
+        body: Data? = nil,
+        headers: [String: String]? = nil
+    ) -> URLRequest {
+        guard let url = URL(string: baseURL + endpoint) else {
+            fatalError("Invalid URL: \(baseURL + endpoint)")
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = method.rawValue
+        request.httpBody = body
+        
+        var allHeaders = [
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        ]
+        
+        if let headers = headers {
+            allHeaders.merge(headers) { _, new in new }
+        }
+        
+        for (key, value) in allHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        return request
+    }
+    
     func request<T: Codable>(
         endpoint: String,
         method: HTTPMethod = .GET,

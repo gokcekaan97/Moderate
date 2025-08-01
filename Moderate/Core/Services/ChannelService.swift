@@ -20,21 +20,68 @@ class ChannelService: BaseService, ObservableObject {
         
         let headers = ["Authorization": "Bearer \(token)"]
         
-        do {
-            let response: ChannelsResponse = try await request(
-                endpoint: "/api/v2/channels/moderated",
-                method: .GET,
-                body: nil,
-                headers: headers
-            )
-            
-            await MainActor.run {
-                self.channels = response.data
-                self.isLoading = false
+        // Try different moderated channels endpoints
+        let endpoints = [
+            "/api/v2/channels/moderated",
+            "/api/v1/channels/moderated", 
+            "/api/v2/user/channels",
+            "/api/v1/channels/followed"
+        ]
+        
+        for endpoint in endpoints {
+            do {
+                print("🔍 Trying moderated channels endpoint: \(endpoint)")
+                
+                let (data, response) = try await URLSession.shared.data(for: createRequest(endpoint: endpoint, method: .GET, body: nil, headers: headers))
+                
+                guard let httpResponse = response as? HTTPURLResponse else { continue }
+                let responseString = String(data: data, encoding: .utf8) ?? "No response body"
+                
+                print("📥 Moderated API Response Status: \(httpResponse.statusCode)")
+                print("📥 Moderated API Response Body: \(responseString.prefix(200))...")
+                
+                guard 200...299 ~= httpResponse.statusCode else { continue }
+                
+                // Check if response is HTML
+                if responseString.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("<") {
+                    print("❌ Moderated API returned HTML instead of JSON")
+                    continue
+                }
+                
+                // Try to parse as ChannelsResponse first
+                do {
+                    let channelsResponse = try JSONDecoder().decode(ChannelsResponse.self, from: data)
+                    await MainActor.run {
+                        self.channels = channelsResponse.data
+                        self.isLoading = false
+                    }
+                    print("✅ Successfully fetched moderated channels from \(endpoint)")
+                    return
+                } catch {
+                    // Try to parse as direct array
+                    do {
+                        let directChannels = try JSONDecoder().decode([Channel].self, from: data)
+                        await MainActor.run {
+                            self.channels = directChannels
+                            self.isLoading = false
+                        }
+                        print("✅ Successfully fetched moderated channels as direct array from \(endpoint)")
+                        return
+                    } catch {
+                        print("❌ Failed to parse channels from \(endpoint): \(error)")
+                        continue
+                    }
+                }
+            } catch {
+                print("❌ Failed to fetch from \(endpoint): \(error)")
+                continue
             }
-        } catch {
-            print("Failed to fetch moderated channels: \(error)")
-            await MainActor.run { isLoading = false }
+        }
+        
+        print("❌ All moderated channels endpoints failed - using empty list")
+        await MainActor.run { 
+            self.channels = []
+            self.isLoading = false 
         }
     }
     

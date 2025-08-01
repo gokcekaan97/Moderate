@@ -80,6 +80,11 @@
             value = "01K1G5BY5G0WPKMWPN888GM9Q2"
             isEnabled = "YES">
          </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "KICK_CLIENT_SECRET"
+            value = "88e298116c967172d559449ade28a0e70998b4526295d29894219cb31af4a808"
+            isEnabled = "YES">
+         </EnvironmentVariable>
       </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
