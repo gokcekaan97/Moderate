@@ -22,12 +22,12 @@ class AuthService: NSObject, ObservableObject, BaseService {
     
     override init() {
         super.init()
+        generatePKCEValues() // PKCE değerlerini sadece bir kez burada oluştur
         checkAuthStatus()
     }
     
     var authorizationURL: URL {
-        // Generate PKCE values
-        generatePKCEValues()
+        // PKCE values already generated in init()
         
         var components = URLComponents(string: "https://id.kick.com/oauth/authorize")!
         components.queryItems = [
@@ -45,12 +45,17 @@ class AuthService: NSObject, ObservableObject, BaseService {
     private func generatePKCEValues() {
         // Generate code verifier (43-128 characters)
         codeVerifier = generateRandomString(length: 128)
-        
         // Generate code challenge (SHA256 hash of code verifier, base64url encoded)
         let data = Data(codeVerifier.utf8)
         let hash = SHA256.hash(data: data)
         codeChallenge = Data(hash).base64URLEncoded()
-        
+        // 🧪 Debug PKCE:
+        let expectedChallenge = Data(hash).base64URLEncoded()
+        print("🧪 Debug PKCE:")
+        print("   🔑 codeVerifier: \(codeVerifier)")
+        print("   🧮 SHA256 hash: \(hash.map { String(format: "%02hhx", $0) }.joined())")
+        print("   🧪 Expected Challenge: \(expectedChallenge)")
+        print("   📌 Stored Challenge: \(codeChallenge)")
         // Generate state parameter
         state = generateRandomString(length: 32)
     }
@@ -62,15 +67,15 @@ class AuthService: NSObject, ObservableObject, BaseService {
     
     func startAuthentication() {
         isLoading = true
-        
+
         // Print configuration for debugging
         AppConfig.printConfiguration()
-        
+
         let authURL = authorizationURL
         print("🔐 Starting OAuth2 flow with URL: \(authURL.absoluteString)")
         print("🔗 Redirect URI: \(redirectURI)")
         print("📋 Scopes: \(scopes.joined(separator: ", "))")
-        
+
         let session = ASWebAuthenticationSession(
             url: authURL,
             callbackURLScheme: "moderatekick"
@@ -78,7 +83,7 @@ class AuthService: NSObject, ObservableObject, BaseService {
             NSLog("🔄 ASWebAuthenticationSession callback triggered!")
             NSLog("📞 Callback URL: %@", callbackURL?.absoluteString ?? "nil")
             NSLog("❌ Error: %@", error?.localizedDescription ?? "nil")
-            
+
             // UI'da da göster
             DispatchQueue.main.async {
                 let debugMessage = """
@@ -88,10 +93,10 @@ class AuthService: NSObject, ObservableObject, BaseService {
                 """
                 NotificationCenter.default.post(name: .debugMessage, object: debugMessage)
             }
-            
+
             DispatchQueue.main.async {
                 self?.isLoading = false
-                
+
                 if let error = error {
                     print("❌ Authentication error: \(error)")
                     if let authError = error as? ASWebAuthenticationSessionError {
@@ -108,33 +113,33 @@ class AuthService: NSObject, ObservableObject, BaseService {
                     }
                     return
                 }
-                
+
                 guard let callbackURL = callbackURL else {
                     print("❌ No callback URL received")
                     return
                 }
-                
+
                 print("✅ SUCCESS! Received callback URL: \(callbackURL.absoluteString)")
                 print("🔗 Full URL: \(callbackURL)")
-                
+
                 // Check if URL scheme matches expected
                 if callbackURL.scheme != "moderatekick" {
                     print("⚠️ Unexpected URL scheme: \(callbackURL.scheme ?? "nil"), expected: moderatekick")
                 }
-                
+
                 guard let code = self?.extractAuthCode(from: callbackURL) else {
                     print("❌ Failed to extract auth code from callback URL")
                     return
                 }
-                
+
                 print("🔑 Extracted authorization code: \(code.prefix(10))...")
-                
+
                 Task {
                     await self?.exchangeCodeForToken(code)
                 }
             }
         }
-        
+
         session.presentationContextProvider = self
         session.prefersEphemeralWebBrowserSession = false
         session.start()
@@ -223,11 +228,18 @@ class AuthService: NSObject, ObservableObject, BaseService {
             print("Invalid token URL")
             return
         }
-        
+
+        // Debug: Print PKCE values
+        print("🔐 Token Exchange Debug:")
+        print("   📋 Client ID: \(clientId.prefix(10))...")
+        print("   🔗 Redirect URI: \(redirectURI)")
+        print("   🔑 Code: \(code.prefix(10))...")
+        print("   🛡️ Code Verifier: \(codeVerifier.prefix(10))... (length: \(codeVerifier.count))")
+        print("   🧮 Code Challenge: \(codeChallenge.prefix(10))...")
+
         var request = URLRequest(url: tokenURL)
         request.httpMethod = "POST"
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        
+
         let bodyParams = [
             "grant_type": "authorization_code",
             "client_id": clientId,
@@ -235,7 +247,7 @@ class AuthService: NSObject, ObservableObject, BaseService {
             "redirect_uri": redirectURI,
             "code_verifier": codeVerifier
         ]
-        
+
         let bodyString = bodyParams.compactMap { key, value in
             guard let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
                   let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
@@ -243,27 +255,45 @@ class AuthService: NSObject, ObservableObject, BaseService {
             }
             return "\(encodedKey)=\(encodedValue)"
         }.joined(separator: "&")
-        
+
+        print("📤 Request Body: \(bodyString)")
         request.httpBody = bodyString.data(using: .utf8)
-        
+
+        // Use custom session to ensure headers and timeouts are handled properly
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15
+        let session = URLSession(configuration: config)
+
+        // Add recommended headers
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("ModerateKick", forHTTPHeaderField: "User-Agent")
+
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            
+            let (data, response) = try await session.data(for: request)
+
             guard let httpResponse = response as? HTTPURLResponse else {
                 print("Invalid response type")
                 return
             }
-            
+
+            print("📥 Response Status: \(httpResponse.statusCode)")
+            let responseString = String(data: data, encoding: .utf8) ?? "No response body"
+            print("📥 Response Body: \(responseString)")
+
             guard 200...299 ~= httpResponse.statusCode else {
-                print("HTTP error: \(httpResponse.statusCode)")
-                if let responseString = String(data: data, encoding: .utf8) {
-                    print("Response: \(responseString)")
+                print("❌ HTTP error: \(httpResponse.statusCode)")
+
+                // Parse error details if available
+                if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    print("❌ Error Details: \(errorData)")
                 }
+
                 return
             }
-            
+
             let tokenResponse = try JSONDecoder().decode(TokenResponse.self, from: data)
-            
+
             await MainActor.run {
                 self.handleTokenResponse(tokenResponse)
             }

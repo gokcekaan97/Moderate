@@ -8,9 +8,14 @@
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
     const state = params.get("state");
+    const error = params.get("error");
+    const errorDescription = params.get("error_description");
 
-    if (code && state) {
-      window.location.href = `moderatekick://callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+    if (error) {
+      const errorMessage = errorDescription ? errorDescription : error;
+      window.location.href = `moderatekick://oauth/callback?error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(errorMessage)}`;
+    } else if (code && state) {
+      window.location.href = `moderatekick://oauth/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
     } else {
       document.body.innerHTML = "<p>Hata: Gerekli parametreler eksik.</p>";
     }
