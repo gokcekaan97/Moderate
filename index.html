@@ -5,8 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Redirecting...</title>
   <script>
-    const query = window.location.search;
-    window.location.href = "moderatekick://callback" + query;
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const state = params.get("state");
+
+    if (code && state) {
+      window.location.href = `moderatekick://callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+    } else {
+      document.body.innerHTML = "<p>Hata: Gerekli parametreler eksik.</p>";
+    }
   </script>
 </head>
 <body>
