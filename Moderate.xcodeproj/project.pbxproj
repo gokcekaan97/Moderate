@@ -29,9 +29,22 @@
 		275DB6282E3B8D87000A3CD2 /* ModerateUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ModerateUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		275DB7042E3BB873000A3CD2 /* Exceptions for "Moderate" folder in "Moderate" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 275DB60D2E3B8D86000A3CD2 /* Moderate */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		275DB6102E3B8D86000A3CD2 /* Moderate */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				275DB7042E3BB873000A3CD2 /* Exceptions for "Moderate" folder in "Moderate" target */,
+			);
 			path = Moderate;
 			sourceTree = "<group>";
 		};
@@ -399,7 +412,8 @@
 				DEVELOPMENT_TEAM = TY6JJD6W6F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleURLTypes = "@[{\"CFBundleURLName\":\"Kick OAuth\",\"CFBundleURLSchemes\":@[\"moderate\"]}]";
+				INFOPLIST_FILE = Moderate/Info.plist;
+				INFOPLIST_KEY_CFBundleURLTypes = "@[{\"CFBundleURLName\":\"Kick OAuth\",\"CFBundleURLSchemes\":@[\"moderatekick\"]}]";
 				INFOPLIST_KEY_NSAppTransportSecurity = "@{\"NSAllowsArbitraryLoads\":YES,\"NSExceptionDomains\":@{\"kick.com\":@{\"NSExceptionAllowsInsecureHTTPLoads\":YES,\"NSExceptionMinimumTLSVersion\":\"TLSv1.0\",\"NSIncludesSubdomains\":YES},\"ws-us2.pusher.com\":@{\"NSExceptionAllowsInsecureHTTPLoads\":YES,\"NSExceptionMinimumTLSVersion\":\"TLSv1.0\",\"NSIncludesSubdomains\":YES}}}";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -434,7 +448,8 @@
 				DEVELOPMENT_TEAM = TY6JJD6W6F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleURLTypes = "@[{\"CFBundleURLName\":\"Kick OAuth\",\"CFBundleURLSchemes\":@[\"moderate\"]}]";
+				INFOPLIST_FILE = Moderate/Info.plist;
+				INFOPLIST_KEY_CFBundleURLTypes = "@[{\"CFBundleURLName\":\"Kick OAuth\",\"CFBundleURLSchemes\":@[\"moderatekick\"]}]";
 				INFOPLIST_KEY_NSAppTransportSecurity = "@{\"NSAllowsArbitraryLoads\":YES,\"NSExceptionDomains\":@{\"kick.com\":@{\"NSExceptionAllowsInsecureHTTPLoads\":YES,\"NSExceptionMinimumTLSVersion\":\"TLSv1.0\",\"NSIncludesSubdomains\":YES},\"ws-us2.pusher.com\":@{\"NSExceptionAllowsInsecureHTTPLoads\":YES,\"NSExceptionMinimumTLSVersion\":\"TLSv1.0\",\"NSIncludesSubdomains\":YES}}}";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

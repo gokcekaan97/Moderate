@@ -12,7 +12,7 @@ class AuthService: NSObject, ObservableObject, BaseService {
     private let userKey = "current_user"
     
     private var clientId: String { AppConfig.kickClientID }
-    private let redirectURI = "https://0dde1f3e-c12b-4a37-a7e9-216f95ea03e6-00-1gatp7xi7rrm6.sisko.replit.dev"
+    private let redirectURI = "https://gokcekaan97.github.io/Moderate/"
     private let scopes = ["chat:read", "chat:moderate", "user:read", "channel:write", "channel:read"]
     
     // PKCE values
@@ -73,7 +73,7 @@ class AuthService: NSObject, ObservableObject, BaseService {
         
         let session = ASWebAuthenticationSession(
             url: authURL,
-            callbackURLScheme: "ModerateKick"
+            callbackURLScheme: "moderatekick"
         ) { [weak self] callbackURL, error in
             NSLog("🔄 ASWebAuthenticationSession callback triggered!")
             NSLog("📞 Callback URL: %@", callbackURL?.absoluteString ?? "nil")
@@ -118,8 +118,8 @@ class AuthService: NSObject, ObservableObject, BaseService {
                 print("🔗 Full URL: \(callbackURL)")
                 
                 // Check if URL scheme matches expected
-                if callbackURL.scheme != "ModerateKick" {
-                    print("⚠️ Unexpected URL scheme: \(callbackURL.scheme ?? "nil"), expected: ModerateKick")
+                if callbackURL.scheme != "moderatekick" {
+                    print("⚠️ Unexpected URL scheme: \(callbackURL.scheme ?? "nil"), expected: moderatekick")
                 }
                 
                 guard let code = self?.extractAuthCode(from: callbackURL) else {
@@ -152,7 +152,7 @@ class AuthService: NSObject, ObservableObject, BaseService {
         print("   - Scheme: \(components.scheme ?? "nil")")
         print("   - Host: \(components.host ?? "nil")")
         print("   - Path: \(components.path)")
-      print("   - Query: \(components.fragment ?? "nil")")
+        print("   - Query: \(components.query ?? "nil")")
         
         guard let queryItems = components.queryItems else {
             print("❌ No query items found in callback URL")
