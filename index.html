@@ -1,25 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <title>Redirecting...</title>
-<script>
-  const url = new URL(window.location.href);
-  const code = url.searchParams.get("code");
-  const state = url.searchParams.get("state");
+    <title>OAuth2 Redirect</title>
+    <script>
+      window.onload = () => {
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+        const state = params.get("state");
 
-  if (code && state) {
-    // Uygulamanız bu URL'yi dinliyor olmalı (örneğin app içindeki WebView'den postMessage?)
-    // Ya da burada bir "Token al" butonu ile kullanıcıyı yönlendirin
-
-    // Geçici olarak terminale yapıştırabilmeniz için gösterebilirsiniz:
-    document.body.innerText = `Auth Code: ${code}\nState: ${state}`;
-  } else {
-    document.body.innerText = "No code found.";
-  }
-</script>
+        if (code && state) {
+          window.location.href = `moderatekick://callback?code=${code}&state=${state}`;
+        } else {
+          document.body.innerText = "Yetkilendirme başarısız.";
+        }
+      };
+    </script>
   </head>
   <body>
-    <p>Kick'ten gelen yetkilendirme kodu alındı. Uygulama açılıyor...</p>
+    Yönlendiriliyorsunuz...
   </body>
 </html>
