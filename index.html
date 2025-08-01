@@ -1,22 +1,31 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>OAuth2 Redirect</title>
-    <script>
-      window.onload = () => {
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get("code");
-        const state = params.get("state");
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Giriş Yönlendiriliyor...</title>
+  <script>
+    window.onload = () => {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      const state = params.get("state");
+      const error = params.get("error");
 
-        if (code && state) {
-          window.location.href = `moderatekick://callback?code=${code}&state=${state}`;
-        } else {
-          document.body.innerText = "Yetkilendirme başarısız.";
-        }
-      };
-    </script>
-  </head>
-  <body>
-    Yönlendiriliyorsunuz...
-  </body>
+      if (error) {
+        document.body.innerHTML = `<h2>⚠️ Hata:</h2><p>${error}</p>`;
+        return;
+      }
+
+      if (code && state) {
+        const redirectURL = `https://gokcekaan97.github.io/Moderate/?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+        document.body.innerHTML = `<p>Giriş başarıyla yapıldı, uygulamaya yönlendiriliyorsunuz...</p>`;
+        window.location.href = redirectURL;
+      } else {
+        document.body.innerHTML = "<p>Beklenmeyen yönlendirme yanıtı alındı.</p>";
+      }
+    };
+  </script>
+</head>
+<body>
+  <p>Yönlendiriliyorsunuz...</p>
+</body>
 </html>
